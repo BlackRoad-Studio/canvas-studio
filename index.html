@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Studio - Free Design Tool | Better Than Canva</title>
+    <meta name="description" content="Create stunning graphics, presentations, and social media posts for free. No subscriptions, no paywalls. Just beautiful design tools for everyone.">
+    <style>
+        :root {
+            --black: #000000;
+            --white: #FFFFFF;
+            --amber: #F5A623;
+            --hot-pink: #FF1D6C;
+            --electric-blue: #2979FF;
+            --violet: #9C27B0;
+            --space-xs: 8px;
+            --space-sm: 13px;
+            --space-md: 21px;
+            --space-lg: 34px;
+            --space-xl: 55px;
+            --space-2xl: 89px;
+            --space-3xl: 144px;
+            --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            line-height: 1.618;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 55px 55px;
+            animation: grid-move 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(55px, 55px); }
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            padding: var(--space-md) var(--space-xl);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        nav .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--amber), var(--hot-pink), var(--violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s var(--ease);
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--hot-pink);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 29, 108, 0.4);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero {
+            padding: calc(var(--space-3xl) * 2) 0 var(--space-3xl);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+            line-height: 1.1;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--amber) 0%, var(--hot-pink) 38.2%, var(--violet) 61.8%, var(--electric-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: var(--space-xl);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .free-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--amber), var(--hot-pink));
+            color: var(--white);
+            padding: var(--space-sm) var(--space-xl);
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: var(--space-xl);
+            box-shadow: 0 8px 30px rgba(255, 29, 108, 0.3);
+        }
+
+        /* Canvas Editor Demo */
+        .canvas-demo {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: var(--space-lg);
+            margin: var(--space-3xl) 0;
+            min-height: 600px;
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .canvas-sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: var(--space-md);
+        }
+
+        .tool-category {
+            margin-bottom: var(--space-lg);
+        }
+
+        .tool-category h3 {
+            font-size: 16px;
+            margin-bottom: var(--space-sm);
+            color: var(--hot-pink);
+        }
+
+        .tool-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: var(--space-sm);
+            margin-bottom: var(--space-xs);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--hot-pink);
+        }
+
+        .canvas-workspace {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .canvas-artboard {
+            width: 600px;
+            height: 400px;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-3xl) 0;
+        }
+
+        .template-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s var(--ease);
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--hot-pink);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--amber) 0%, var(--hot-pink) 38.2%, var(--violet) 61.8%, var(--electric-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .template-info {
+            padding: var(--space-md);
+        }
+
+        .template-info h3 {
+            font-size: 20px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .template-info p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-3xl) 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            transition: all 0.3s var(--ease);
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-4px);
+            border-color: var(--hot-pink);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: var(--space-sm);
+            color: var(--hot-pink);
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .comparison-table {
+            margin: var(--space-3xl) 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: var(--space-xl);
+        }
+
+        .comparison-table h2 {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .comparison-col {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: var(--space-lg);
+        }
+
+        .comparison-col.highlight {
+            border: 2px solid var(--hot-pink);
+            background: rgba(255, 29, 108, 0.05);
+        }
+
+        .comparison-col h3 {
+            font-size: 24px;
+            margin-bottom: var(--space-md);
+        }
+
+        .comparison-col .price {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--hot-pink);
+            margin-bottom: var(--space-md);
+        }
+
+        .comparison-col ul {
+            list-style: none;
+        }
+
+        .comparison-col li {
+            padding: var(--space-xs) 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .comparison-col li.yes::before {
+            content: '✓';
+            color: var(--hot-pink);
+            margin-right: var(--space-xs);
+            font-weight: bold;
+        }
+
+        .comparison-col li.no::before {
+            content: '✗';
+            color: rgba(255, 255, 255, 0.3);
+            margin-right: var(--space-xs);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: var(--space-3xl) 0;
+        }
+
+        .cta-section h2 {
+            font-size: 56px;
+            margin-bottom: var(--space-md);
+        }
+
+        .cta-section p {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: var(--space-xl);
+        }
+
+        footer {
+            text-align: center;
+            padding: var(--space-xl) 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 42px; }
+            .canvas-demo { flex-direction: column; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <nav>
+        <div class="container">
+            <div class="logo">🎨 Canvas Studio</div>
+            <a href="#editor" class="btn btn-primary">Start Creating Free →</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="free-badge">FREE FOREVER • NO CREDIT CARD</div>
+            <h1>Design Like a Pro<br><span class="gradient-text">Without Paying Like One</span></h1>
+            <p>Create stunning graphics, presentations, social media posts, and more. All the power of Canva Pro, completely free.</p>
+            <div style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-xl);">
+                <a href="#editor" class="btn btn-primary" style="font-size: 20px; padding: var(--space-md) var(--space-2xl);">Start Designing Free →</a>
+            </div>
+            <p style="font-size: 14px; margin-top: var(--space-md); color: rgba(255,255,255,0.5);">No signup required • No watermarks • No limits</p>
+        </div>
+    </section>
+
+    <section id="editor" class="container">
+        <h2 style="text-align: center; font-size: 48px; margin-bottom: var(--space-xl);">Powerful Editor, Simple Interface</h2>
+        <div class="canvas-demo">
+            <div class="canvas-sidebar">
+                <div class="tool-category">
+                    <h3>📁 Templates</h3>
+                    <button class="tool-btn">Social Media</button>
+                    <button class="tool-btn">Presentations</button>
+                    <button class="tool-btn">Posters</button>
+                    <button class="tool-btn">Flyers</button>
+                    <button class="tool-btn">Business Cards</button>
+                </div>
+
+                <div class="tool-category">
+                    <h3>🎨 Elements</h3>
+                    <button class="tool-btn">Text</button>
+                    <button class="tool-btn">Shapes</button>
+                    <button class="tool-btn">Images</button>
+                    <button class="tool-btn">Icons</button>
+                    <button class="tool-btn">Backgrounds</button>
+                </div>
+
+                <div class="tool-category">
+                    <h3>✨ Effects</h3>
+                    <button class="tool-btn">Filters</button>
+                    <button class="tool-btn">Blur</button>
+                    <button class="tool-btn">Shadows</button>
+                    <button class="tool-btn">Animations</button>
+                </div>
+            </div>
+
+            <div class="canvas-workspace">
+                <div class="canvas-artboard">
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎨</div>
+                        <div>Your canvas awaits</div>
+                        <div style="font-size: 14px; color: rgba(0,0,0,0.5); margin-top: 8px;">Start with a template or create from scratch</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2 style="text-align: center; font-size: 48px; margin-bottom: var(--space-xl);">1000+ Professional Templates</h2>
+        <div class="templates-grid">
+            <div class="template-card">
+                <div class="template-preview">📱</div>
+                <div class="template-info">
+                    <h3>Instagram Post</h3>
+                    <p>1080×1080px • Perfect for feed posts</p>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-preview">🎭</div>
+                <div class="template-info">
+                    <h3>Instagram Story</h3>
+                    <p>1080×1920px • Swipe-worthy stories</p>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-preview">🎬</div>
+                <div class="template-info">
+                    <h3>YouTube Thumbnail</h3>
+                    <p>1280×720px • Click-worthy covers</p>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-preview">📊</div>
+                <div class="template-info">
+                    <h3>Presentation</h3>
+                    <p>1920×1080px • Pitch decks & slides</p>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-preview">📄</div>
+                <div class="template-info">
+                    <h3>Flyer</h3>
+                    <p>8.5×11in • Print-ready designs</p>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-preview">💳</div>
+                <div class="template-info">
+                    <h3>Business Card</h3>
+                    <p>3.5×2in • Professional cards</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2 style="text-align: center; font-size: 48px; margin-bottom: var(--space-xl);">Everything You Need</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Drag & Drop Editor</h3>
+                <p>Intuitive interface that anyone can use. No design experience needed.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>10K+ Templates</h3>
+                <p>Every template free. Social media, presentations, marketing materials, and more.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🖼️</div>
+                <h3>Millions of Images</h3>
+                <p>Free stock photos, illustrations, and icons. All copyright-free.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>AI-Powered Tools</h3>
+                <p>Background remover, auto-enhance, smart resize, and more.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Team Collaboration</h3>
+                <p>Work together in real-time. Comments, sharing, and version history.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3>Cloud Storage</h3>
+                <p>Access your designs anywhere. Auto-save every change.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="comparison-table">
+            <h2>Why Choose Canvas Studio?</h2>
+            <div class="comparison-grid">
+                <div class="comparison-col">
+                    <h3>Canva Pro</h3>
+                    <div class="price">$12.99/mo</div>
+                    <ul>
+                        <li class="yes">Templates</li>
+                        <li class="yes">Stock images</li>
+                        <li class="yes">Team features</li>
+                        <li class="no">Limited storage</li>
+                        <li class="no">Watermarks on free</li>
+                        <li class="no">Expensive</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-col">
+                    <h3>Adobe Creative</h3>
+                    <div class="price">$54.99/mo</div>
+                    <ul>
+                        <li class="yes">Professional tools</li>
+                        <li class="yes">Advanced features</li>
+                        <li class="no">Steep learning curve</li>
+                        <li class="no">Very expensive</li>
+                        <li class="no">Complex interface</li>
+                        <li class="no">Desktop only</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-col highlight">
+                    <h3>Canvas Studio ✨</h3>
+                    <div class="price">FREE</div>
+                    <ul>
+                        <li class="yes">10K+ templates</li>
+                        <li class="yes">Millions of images</li>
+                        <li class="yes">Team collaboration</li>
+                        <li class="yes">Unlimited storage</li>
+                        <li class="yes">No watermarks</li>
+                        <li class="yes">AI-powered tools</li>
+                        <li class="yes">No signup needed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="cta-section">
+            <h2>Start Creating Today</h2>
+            <p>Join millions of creators who choose Canvas Studio</p>
+            <a href="#editor" class="btn btn-primary" style="font-size: 24px; padding: var(--space-lg) var(--space-2xl);">Start Designing Free →</a>
+            <p style="font-size: 14px; margin-top: var(--space-md); color: rgba(255,255,255,0.5);">Free forever • No credit card • No watermarks</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 BlackRoad Studio, Inc. All rights reserved.</p>
+            <p style="margin-top: var(--space-sm);">Design for everyone, by everyone.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple interactivity
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('Canvas Studio editor coming soon! Contact blackroad.systems@gmail.com for early access.');
+            });
+        });
+
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                alert('Template editor coming soon! Contact blackroad.systems@gmail.com for early access.');
+            });
+        });
+    </script>
+</body>
+</html>
