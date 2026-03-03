@@ -74,6 +74,8 @@ def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     h = hex_color.lstrip("#")
     if len(h) == 3:
         h = h[0]*2 + h[1]*2 + h[2]*2
+    if len(h) != 6 or not all(c in "0123456789abcdefABCDEF" for c in h):
+        raise ValueError(f"Invalid hex color: {hex_color!r}")
     return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
 
 
@@ -202,10 +204,11 @@ _ROLES = ["primary", "secondary", "accent", "quaternary",
 
 def generate(base_hex: str, harmony_type: str, name: str = "") -> Palette:
     """Main factory – returns a fully-populated Palette."""
+    # Validate and normalise hex (raises ValueError on bad input)
     h_str = base_hex.lstrip("#")
     if len(h_str) == 3:
         h_str = h_str[0]*2 + h_str[1]*2 + h_str[2]*2
-    if len(h_str) != 6:
+    if len(h_str) != 6 or not all(c in "0123456789abcdefABCDEF" for c in h_str):
         raise ValueError(f"Invalid hex color: {base_hex!r}")
     full = f"#{h_str}"
 
@@ -238,7 +241,7 @@ def generate(base_hex: str, harmony_type: str, name: str = "") -> Palette:
         harmony=harmony_type,
         colors=swatches,
         tags=[harmony_type],
-        created_at=datetime.datetime.utcnow().isoformat(),
+        created_at=datetime.datetime.now(datetime.UTC).isoformat(),
     )
 
 
@@ -339,23 +342,21 @@ def _db(path: Path = DB_PATH) -> sqlite3.Connection:
 
 
 def save_palette(palette: Palette, db_path: Path = DB_PATH) -> None:
-    conn = _db(db_path)
-    conn.execute(
-        "INSERT OR REPLACE INTO palettes VALUES (?,?,?,?,?,?,?)",
-        (palette.id, palette.name, palette.base_color, palette.harmony,
-         json.dumps([asdict(c) for c in palette.colors]),
-         ",".join(palette.tags), palette.created_at),
-    )
-    conn.commit(); conn.close()
+    with _db(db_path) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO palettes VALUES (?,?,?,?,?,?,?)",
+            (palette.id, palette.name, palette.base_color, palette.harmony,
+             json.dumps([asdict(c) for c in palette.colors]),
+             ",".join(palette.tags), palette.created_at),
+        )
 
 
 def load_palette(palette_id: str, db_path: Path = DB_PATH) -> Optional[Palette]:
-    conn = _db(db_path)
-    row = conn.execute(
-        "SELECT id,name,base_color,harmony,data,tags,created_at FROM palettes WHERE id=?",
-        (palette_id,),
-    ).fetchone()
-    conn.close()
+    with _db(db_path) as conn:
+        row = conn.execute(
+            "SELECT id,name,base_color,harmony,data,tags,created_at FROM palettes WHERE id=?",
+            (palette_id,),
+        ).fetchone()
     if not row:
         return None
     pid, name, base, harmony, data, tags, created_at = row
@@ -368,19 +369,17 @@ def load_palette(palette_id: str, db_path: Path = DB_PATH) -> Optional[Palette]:
 
 
 def list_palettes(db_path: Path = DB_PATH) -> List[dict]:
-    conn = _db(db_path)
-    rows = conn.execute(
-        "SELECT id,name,base_color,harmony,tags,created_at FROM palettes ORDER BY created_at DESC"
-    ).fetchall()
-    conn.close()
+    with _db(db_path) as conn:
+        rows = conn.execute(
+            "SELECT id,name,base_color,harmony,tags,created_at FROM palettes ORDER BY created_at DESC"
+        ).fetchall()
     return [{"id": r[0],"name": r[1],"base_color": r[2],"harmony": r[3],
              "tags": r[4],"created_at": r[5]} for r in rows]
 
 
 def delete_palette(palette_id: str, db_path: Path = DB_PATH) -> bool:
-    conn = _db(db_path)
-    cur = conn.execute("DELETE FROM palettes WHERE id=?", (palette_id,))
-    conn.commit(); conn.close()
+    with _db(db_path) as conn:
+        cur = conn.execute("DELETE FROM palettes WHERE id=?", (palette_id,))
     return cur.rowcount > 0
 
 
