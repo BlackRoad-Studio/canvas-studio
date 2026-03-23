@@ -1,5 +1,13 @@
 # canvas-studio
 
+> Canvas Studio — design tool for graphics, presentations, and social media posts. Proprietary BlackRoad OS, Inc.
+
+Part of the [BlackRoad OS](https://blackroad.io) ecosystem — [BlackRoad-Studio](https://github.com/BlackRoad-Studio)
+
+---
+
+# canvas-studio
+
 Canvas Studio — design tool for graphics, presentations, and social media posts. Proprietary BlackRoad OS, Inc.
 
 **BlackRoad-Studio** — Creative — video, canvas, design
